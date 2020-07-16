@@ -607,6 +607,12 @@ def verify_environment(pids_to_show):
             sys.exit(2)
         else:
             raise
+def get_child_pids(pids_to_show):
+    children_int = []
+    for pid in pids_to_show:
+        children = proc.open(str(pid)+'/task/'+str(pid)+"/children").readline().split()
+        children_int.extend([int(child) for child in children])
+    return  children_int
 
 def main():
     # Force the stdout and stderr streams to be unbuffered
@@ -617,6 +623,7 @@ def main():
     show_swap = parse_options()
 
     verify_environment(pids_to_show)
+    pids_to_show.extend(get_child_pids(pids_to_show))
 
     if not only_total:
         print_header(show_swap, discriminate_by_pid)
